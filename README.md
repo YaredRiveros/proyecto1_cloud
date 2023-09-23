@@ -1,4 +1,4 @@
-# proyecto1_cloud
+# Proyecto parcial - Cloud Computing
 
 ## Dependencias
 - pip install flask

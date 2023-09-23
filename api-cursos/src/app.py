@@ -32,6 +32,8 @@ def leer_curso(codigo):
         if datos != None:
             curso = {'codigo': datos[0],'nombre':datos[1],'creditos':datos[2]}
             return jsonify({'curso':curso,'mensaje':"Curso encontrado"})
+        else:
+            return jsonify({'mensaje':'Curso no encontrado'})
     except Exception as ex:
         print(ex)
         return jsonify({'mensaje':"Curso no encontrado"})

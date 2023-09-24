@@ -1,15 +1,26 @@
 from flask import Flask, jsonify, request
-from flask_mysqldb import MySQL #el editor tira error aca pero no hacer caso
-from config import config
+# from flask_mysqldb import MySQL #el editor tira error aca pero no hacer caso
+from flaskext.mysql import MySQL
 
 app = Flask(__name__)
 
-conexion = MySQL(app)
+#Create an instance of MySQL
+mysql = MySQL()
+
+#Set database credentials in config.
+app.config['MYSQL_DATABASE_USER'] = 'admin'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'lVqArHhM1o4ZMzivVsaD'
+app.config['MYSQL_DATABASE_DB'] = 'universidad'
+app.config['MYSQL_DATABASE_HOST'] = 'database-1.czslunqzhzce.us-east-1.rds.amazonaws.com'
+
+#Initialize the MySQL extension
+mysql.init_app(app)
 
 @app.route('/profesores', methods=['GET'])
 def listar_profesores():
     try:
-        cursor = conexion.connection.cursor()
+        conn = mysql.connect()
+        cursor = conn.cursor()
         sql = "SELECT id, nombre, carrera FROM profesores"
         cursor.execute(sql)
         datos = cursor.fetchall()
@@ -24,7 +35,8 @@ def listar_profesores():
 @app.route('/profesores/<id>',methods=['GET'])
 def leer_profesor(id):
     try:
-        cursor = conexion.connection.cursor()
+        conn = mysql.connect()
+        cursor = conn.cursor()
         sql = "SELECT id, nombre, carrera FROM profesores WHERE id={0}".format(id)
         cursor.execute(sql)
         datos = cursor.fetchone()
@@ -41,7 +53,8 @@ def leer_profesor(id):
 @app.route('/profesores',methods=['POST'])
 def registrar_profesor():
     try:
-        cursor = conexion.connection.cursor()
+        conn = mysql.connect()
+        cursor = conn.cursor()
         sql_val = "SELECT * FROM profesores WHERE id={0}".format(request.json['id'])
         cursor.execute(sql_val)
         datos = cursor.fetchone()
@@ -52,7 +65,7 @@ def registrar_profesor():
         sql = """INSERT INTO profesores(id, nombre, carrera) 
         VALUES ('{0}', '{1}', '{2}')""".format(request.json['id'],request.json['nombre'],request.json['carrera'])
         cursor.execute(sql)
-        conexion.connection.commit()
+        conn.commit()
 
         return jsonify({'mensaje':'Profesor registrado'})
     except Exception as ex:
@@ -62,7 +75,8 @@ def registrar_profesor():
 @app.route('/profesores/<id>',methods=['DELETE'])
 def eliminar_profesor(id):
     try:
-        cursor = conexion.connection.cursor()
+        conn = mysql.connect()
+        cursor = conn.cursor()
 
         sql_val = "SELECT * FROM profesores WHERE id={0}".format(id)
         cursor.execute(sql_val)
@@ -75,7 +89,7 @@ def eliminar_profesor(id):
         sql = "DELETE FROM profesores WHERE id='{0}'".format(id)
         
         cursor.execute(sql)
-        conexion.connection.commit()
+        conn.commit()
 
         return jsonify({'mensaje':'Profesor eliminado'})
     except Exception as ex:
@@ -85,7 +99,8 @@ def eliminar_profesor(id):
 @app.route('/profesores/<id>', methods=['PUT'])
 def actualizar_profesor(id):
     try:
-        cursor = conexion.connection.cursor()
+        conn = mysql.connect()
+        cursor = conn.cursor()
 
         sql_val = "SELECT * FROM profesores WHERE id={0}".format(id)
         cursor.execute(sql_val)
@@ -100,7 +115,7 @@ def actualizar_profesor(id):
         WHERE id='{2}'""".format(request.json['nombre'],request.json['carrera'],id)
         
         cursor.execute(sql)
-        conexion.connection.commit()
+        conn.commit()
 
         return jsonify({'mensaje':'Profesor modificado'})
     except Exception as ex:
@@ -112,6 +127,5 @@ def pagina_no_encontrada(error):
     return "<h1>La página que intentas buscar no existe</h1>",404
 
 if(__name__=='__main__'):
-    app.config.from_object(config['development'])
     app.register_error_handler(404,pagina_no_encontrada)
-    app.run()
+    app.run(host='0.0.0.0',port=8000,debug=True)

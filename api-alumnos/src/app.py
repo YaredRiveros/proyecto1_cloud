@@ -10,12 +10,12 @@ conexion = MySQL(app)
 def listar_alumnos():
     try:
         cursor = conexion.connection.cursor()
-        sql = "SELECT codigo, nombre, creditos, ciclo FROM alumnos"
+        sql = "SELECT codigo, nombre, creditos, ciclo, carrera FROM alumnos"
         cursor.execute(sql)
         datos = cursor.fetchall()
         alumnos = []
         for fila in datos:
-            alumno = {'codigo':fila[0],'nombre':fila[1],"creditos":fila[2],"ciclo":fila[3]}
+            alumno = {'codigo':fila[0],'nombre':fila[1],"creditos":fila[2],"ciclo":fila[3],"carrera":fila[4]}
             alumnos.append(alumno)
         return jsonify({'alumnos':alumnos,'mensaje':"Alumnos listados"})
     except Exception as ex:
@@ -25,13 +25,12 @@ def listar_alumnos():
 def leer_alumno(codigo):
     try:
         cursor = conexion.connection.cursor()
-        sql = "SELECT codigo, nombre, creditos, ciclo FROM alumnos WHERE codigo={0}".format(codigo)
+        sql = "SELECT codigo, nombre, creditos, ciclo, carrera FROM alumnos WHERE codigo={0}".format(codigo)
         cursor.execute(sql)
         datos = cursor.fetchone()
         
         if datos != None:
-            print("acaaaaaaaa")
-            alumno = {'codigo': datos[0],'nombre':datos[1],'creditos':datos[2], 'ciclo':datos[3]}
+            alumno = {'codigo': datos[0],'nombre':datos[1],'creditos':datos[2], 'ciclo':datos[3],'carrera':datos[4]}
             return jsonify({'alumno':alumno,'mensaje':"Alumno encontrado"})
         else:
             return jsonify({'mensaje':'Alumno no encontrado'})
@@ -50,8 +49,8 @@ def registrar_alumno():
         if datos != None:
             return jsonify({'mensaje':"un alumno con el mismo codigo ya ha sido registrado"})
 
-        sql = """INSERT INTO alumnos(codigo, nombre, creditos,ciclo) 
-        VALUES ('{0}', '{1}', '{2}', '{3}')""".format(request.json['codigo'],request.json['nombre'],request.json['creditos'],request.json['ciclo'])
+        sql = """INSERT INTO alumnos(codigo, nombre, creditos,ciclo,carrera) 
+        VALUES ('{0}', '{1}', '{2}', '{3}','{4}')""".format(request.json['codigo'],request.json['nombre'],request.json['creditos'],request.json['ciclo'],request.json['carrera'])
         cursor.execute(sql)
         conexion.connection.commit()
 
@@ -97,8 +96,8 @@ def actualizar_alumno(codigo):
 
 
         sql = """UPDATE alumnos
-        SET nombre='{0}', creditos='{1}', ciclo='{2}' 
-        WHERE codigo='{3}'""".format(request.json['nombre'],request.json['creditos'],request.json['ciclo'],codigo)
+        SET nombre='{0}', creditos='{1}', ciclo='{2}', carrera='{3}' 
+        WHERE codigo='{4}'""".format(request.json['nombre'],request.json['creditos'],request.json['ciclo'],request.json['carrera'],codigo)
         
         cursor.execute(sql)
         conexion.connection.commit()

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profesores</title>
+</head>
+<body>
+    <h1>Lista de Profesores</h1>
+    
+    <div id="profesor-list">
+        <!-- Aquí se mostrará la lista de profesores desde la API REST -->
+    </div>
+
+    <h2>Agregar Profesor</h2>
+    <form id="agregar-profesor-form">
+        Nombre: <input type="text" id="nombre"><br>
+        Carrera: <input type="text" id="carrera"><br>
+        <button type="submit">Agregar Profesor</button>
+    </form>
+
+    <h2>Actualizar Profesor</h2>
+    <form id="actualizar-profesor-form">
+        ID del Profesor a Actualizar: <input type="text" id="id-actualizar"><br>
+        Nuevo Nombre: <input type="text" id="nombre-actualizar"><br>
+        Nueva Carrera: <input type="text" id="carrera-actualizar"><br>
+        <button type="submit">Actualizar Profesor</button>
+    </form>
+
+    <h2>Eliminar Profesor</h2>
+    <form id="eliminar-profesor-form">
+        ID del Profesor a Eliminar: <input type="text" id="id-eliminar"><br>
+        <button type="submit">Eliminar Profesor</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Función para cargar la lista de profesores desde la API REST
+        function cargarProfesores() {
+            $.get("/profesores", function(data) {
+                var profesoresHTML = "<ul>";
+                data.profesores.forEach(function(profesor) {
+                    profesoresHTML += "<li>ID: " + profesor.id + ", Nombre: " + profesor.nombre + ", Carrera: " + profesor.carrera + "</li>";
+                });
+                profesoresHTML += "</ul>";
+                $("#profesor-list").html(profesoresHTML);
+            });
+        }
+
+        // Evento de envío de formulario para agregar profesor
+        $("#agregar-profesor-form").submit(function(event) {
+            event.preventDefault();
+            var nombre = $("#nombre").val();
+            var carrera = $("#carrera").val();
+            $.post("/profesores", {nombre: nombre, carrera: carrera}, function(data) {
+                alert(data.mensaje);
+                cargarProfesores();
+            });
+        });
+
+        // Evento de envío de formulario para actualizar profesor
+        $("#actualizar-profesor-form").submit(function(event) {
+            event.preventDefault();
+            var id = $("#id-actualizar").val();
+            var nombre = $("#nombre-actualizar").val();
+            var carrera = $("#carrera-actualizar").val();
+            $.ajax({
+                url: "/profesores/" + id,
+                method: "PUT",
+                data: {nombre: nombre, carrera: carrera},
+                success: function(data) {
+                    alert(data.mensaje);
+                    cargarProfesores();
+                },
+                error: function(data) {
+                    alert(data.responseJSON.mensaje);
+                }
+            });
+        });
+
+        // Evento de envío de formulario para eliminar profesor
+        $("#eliminar-profesor-form").submit(function(event) {
+            event.preventDefault();
+            var id = $("#id-eliminar").val();
+            $.ajax({
+                url: "/profesores/" + id,
+                method: "DELETE",
+                success: function(data) {
+                    alert(data.mensaje);
+                    cargarProfesores();
+                },
+                error: function(data) {
+                    alert(data.responseJSON.mensaje);
+                }
+            });
+        });
+
+        // Cargar la lista de profesores al cargar la página
+        cargarProfesores();
+    </script>
+</body>
+</html>

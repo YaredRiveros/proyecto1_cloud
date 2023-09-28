@@ -1,8 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 # from flask_mysqldb import MySQL #el editor tira error aca pero no hacer caso
 from flaskext.mysql import MySQL
+from flask_cors import CORS  # Import CORS
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for your Flask app
 
 #Create an instance of MySQL
 mysql = MySQL()
@@ -128,4 +130,4 @@ def pagina_no_encontrada(error):
 
 if(__name__=='__main__'):
     app.register_error_handler(404,pagina_no_encontrada)
-    app.run(host='0.0.0.0',port=8102,debug=True)
+    app.run(host='0.0.0.0',port=8003,debug=True)

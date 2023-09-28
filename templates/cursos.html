@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API REST de Cursos</title>
+</head>
+<body>
+    <h1>API REST de Cursos</h1>
+
+    <h2>Listar Cursos</h2>
+    <div id="cursos"></div>
+
+    <h2>Registrar Curso</h2>
+    <input type="text" id="codigo" placeholder="Código del Curso">
+    <input type="text" id="nombre" placeholder="Nombre del Curso">
+    <input type="text" id="creditos" placeholder="Créditos del Curso">
+    <button onclick="registrarCurso()">Registrar Curso</button>
+
+    <h2>Actualizar Curso</h2>
+    <input type="text" id="codigoActualizar" placeholder="Código del Curso a Actualizar">
+    <input type="text" id="nombreActualizar" placeholder="Nuevo Nombre del Curso">
+    <input type="text" id="creditosActualizar" placeholder="Nuevos Créditos del Curso">
+    <button onclick="actualizarCurso()">Actualizar Curso</button>
+
+    <h2>Eliminar Curso</h2>
+    <input type="text" id="codigoEliminar" placeholder="Código del Curso a Eliminar">
+    <button onclick="eliminarCurso()">Eliminar Curso</button>
+
+    <script>
+        function listarCursos() {
+            fetch('/cursos', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                const cursos = data.cursos;
+                const cursosDiv = document.getElementById('cursos');
+                cursosDiv.innerHTML = '';
+                cursos.forEach(curso => {
+                    cursosDiv.innerHTML += `<p>Código: ${curso.codigo}, Nombre: ${curso.nombre}, Créditos: ${curso.creditos}</p>`;
+                });
+            });
+        }
+
+        function registrarCurso() {
+            const codigo = document.getElementById('codigo').value;
+            const nombre = document.getElementById('nombre').value;
+            const creditos = document.getElementById('creditos').value;
+            
+            fetch('/cursos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    codigo: codigo,
+                    nombre: nombre,
+                    creditos: creditos
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.mensaje);
+                listarCursos(); // Actualiza la lista después de registrar un curso
+            });
+        }
+
+        function actualizarCurso() {
+            const codigo = document.getElementById('codigoActualizar').value;
+            const nombre = document.getElementById('nombreActualizar').value;
+            const creditos = document.getElementById('creditosActualizar').value;
+            
+            fetch(`/cursos/${codigo}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombre: nombre,
+                    creditos: creditos
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.mensaje);
+                listarCursos(); // Actualiza la lista después de actualizar un curso
+            });
+        }
+
+        function eliminarCurso() {
+            const codigo = document.getElementById('codigoEliminar').value;
+            
+            fetch(`/cursos/${codigo}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.mensaje);
+                listarCursos(); // Actualiza la lista después de eliminar un curso
+            });
+        }
+
+        listarCursos();
+    </script>
+</body>
+</html>

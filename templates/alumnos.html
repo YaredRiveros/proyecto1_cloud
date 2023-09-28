@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Aplicación Flask</title>
+</head>
+<body>
+    <h1>Bienvenido a Mi Aplicación Flask</h1>
+    
+    <h2>Lista de Alumnos</h2>
+    <ul>
+        <!-- Los alumnos se cargarán aquí dinámicamente -->
+    </ul>
+
+    <h2>Buscar Alumno</h2>
+    <form id="searchForm">
+        <label for="codigo">Código del Alumno:</label>
+        <input type="text" id="codigo" name="codigo">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <h2>Registrar Nuevo Alumno</h2>
+    <form id="addForm">
+        <label for="codigo">Código:</label>
+        <input type="text" id="codigo" name="codigo" required>
+        <br>
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required>
+        <br>
+        <label for="creditos">Créditos:</label>
+        <input type="text" id="creditos" name="creditos" required>
+        <br>
+        <label for="ciclo">Ciclo:</label>
+        <input type="text" id="ciclo" name="ciclo" required>
+        <br>
+        <label for="carrera">Carrera:</label>
+        <input type="text" id="carrera" name="carrera" required>
+        <br>
+        <button type="submit">Registrar</button>
+    </form>
+
+    <h2>Eliminar Alumno</h2>
+    <form id="deleteForm">
+        <label for="deleteCodigo">Código del Alumno a Eliminar:</label>
+        <input type="text" id="deleteCodigo" name="codigo" required>
+        <button type="submit">Eliminar</button>
+    </form>
+
+    <h2>Actualizar Alumno</h2>
+    <form id="updateForm">
+        <label for="updateCodigo">Código del Alumno a Actualizar:</label>
+        <input type="text" id="updateCodigo" name="codigo" required>
+        <br>
+        <label for="updateNombre">Nuevo Nombre:</label>
+        <input type="text" id="updateNombre" name="nombre" required>
+        <br>
+        <label for="updateCreditos">Nuevos Créditos:</label>
+        <input type="text" id="updateCreditos" name="creditos" required>
+        <br>
+        <label for="updateCiclo">Nuevo Ciclo:</label>
+        <input type="text" id="updateCiclo" name="ciclo" required>
+        <br>
+        <label for="updateCarrera">Nueva Carrera:</label>
+        <input type="text" id="updateCarrera" name="carrera" required>
+        <br>
+        <button type="submit">Actualizar</button>
+    </form>
+
+    <script>
+        // Función para cargar la lista de alumnos
+        function loadStudents() {
+            fetch('/alumnos', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const studentList = document.querySelector('ul');
+                studentList.innerHTML = '';
+
+                data.alumnos.forEach(alumno => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Nombre: ${alumno.nombre}, Ciclo: ${alumno.ciclo}, Carrera: ${alumno.carrera}`;
+                    studentList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error(error));
+        }
+
+        // Función para buscar un alumno
+        document.getElementById('searchForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const codigo = document.getElementById('codigo').value;
+            fetch(`/alumnos/${codigo}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const studentList = document.querySelector('ul');
+                studentList.innerHTML = '';
+
+                if (data.alumno) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Nombre: ${data.alumno.nombre}, Ciclo: ${data.alumno.ciclo}, Carrera: ${data.alumno.carrera}`;
+                    studentList.appendChild(listItem);
+                } else {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = 'Alumno no encontrado';
+                    studentList.appendChild(listItem);
+                }
+            })
+            .catch(error => console.error(error));
+        });
+
+        // Función para agregar un nuevo alumno
+        document.getElementById('addForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const alumnoData = {
+                codigo: formData.get('codigo'),
+                nombre: formData.get('nombre'),
+                creditos: formData.get('creditos'),
+                ciclo: formData.get('ciclo'),
+                carrera: formData.get('carrera')
+            };
+
+            fetch('/alumnos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(alumnoData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.mensaje);
+                loadStudents(); // Recargar la lista de alumnos después de agregar uno nuevo
+                this.reset(); // Limpiar el formulario
+            })
+            .catch(error => console.error(error));
+        });
+
+        // Función para eliminar un alumno
+        document.getElementById('deleteForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const codigo = document.getElementById('deleteCodigo').value;
+            fetch(`/alumnos/${codigo}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.mensaje);
+                loadStudents(); // Recargar la lista de alumnos después de eliminar uno
+            })
+            .catch(error => console.error(error));
+        });
+
+        // Función para actualizar un alumno
+        document.getElementById('updateForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const codigo = document.getElementById('updateCodigo').value;
+            const formData = new FormData(this);
+            const alumnoData = {
+                nombre: formData.get('nombre'),
+                creditos: formData.get('creditos'),
+                ciclo: formData.get('ciclo'),
+                carrera: formData.get('carrera')
+            };
+
+            fetch(`/alumnos/${codigo}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(alumnoData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.mensaje);
+                loadStudents(); // Recargar la lista de alumnos después de actualizar uno
+                this.reset(); // Limpiar el formulario
+            })
+            .catch(error => console.error(error));
+        });
+
+        // Cargar la lista de alumnos cuando se carga la página
+        loadStudents();
+    </script>
+</body>
+</html>

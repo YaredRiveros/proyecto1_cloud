@@ -4,6 +4,22 @@
 - pip install flask
 - pip install flask_mysqldb  <- no lo pude instalar en mi linux (wsl), puede que de problemas en las MV. Podríamos cambiar a otro conector de mysql
 
+Front end
+
+To create a react project
+- npx create-react app
+
+
+Install
+
+- npm install react-router-dom
+- npm install react-modal
+- npm install @mui/material
+- @mui/icons-material
+
+- pip install flask-cors
+
+
 ## Llamar a las API's desde la nube
 
 ### GET

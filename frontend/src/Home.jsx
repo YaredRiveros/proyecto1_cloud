@@ -1,27 +1,30 @@
-// Home.jsx
-
 import React from 'react';
-import { Link } from 'react-router-dom'; // Supongamos que estás utilizando React Router para la navegación.
+import { Link } from 'react-router-dom';
+import { Typography, Container, List, ListItem, ListItemText } from '@mui/material'; // Importa los componentes de Material-UI que necesitas
 
 function Home() {
   return (
-    <div>
-      <h1>Bienvenido a la Aplicación de Gestión Escolar</h1>
+    <Container maxWidth="md"> {/* Utiliza el componente Container para controlar el ancho del contenido */}
+      <Typography variant="h3" component="h3" gutterBottom>
+        Bienvenido a la Aplicación de Gestión Escolar
+      </Typography>
       <div>
-        <h2>Menú de Navegación</h2>
-        <ul>
-          <li>
-            <Link to="/alumnos">Alumnos</Link>
-          </li>
-          <li>
-            <Link to="/cursos">Cursos</Link>
-          </li>
-          <li>
-            <Link to="/profesores">Profesores</Link>
-          </li>
-        </ul>
+        <Typography variant="h4" component="h4" gutterBottom>
+          Menú de Navegación
+        </Typography>
+        <List>
+          <ListItem button component={Link} to="/alumnos">
+            <ListItemText primary="Alumnos" />
+          </ListItem>
+          <ListItem button component={Link} to="/cursos">
+            <ListItemText primary="Cursos" />
+          </ListItem>
+          <ListItem button component={Link} to="/profesores">
+            <ListItemText primary="Profesores" />
+          </ListItem>
+        </List>
       </div>
-    </div>
+    </Container>
   );
 }
 

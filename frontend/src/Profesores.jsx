@@ -1,85 +1,183 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { TextField, Button, Typography, Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
 
 class Profesores extends Component {
   constructor() {
     super();
     this.state = {
       profesores: [],
-      nuevoProfesor: {
-        id: '',
-        nombre: '',
-        carrera: '',
-      },
+      id: '',
+      nombre: '',
+      carrera: '',
     };
   }
 
   componentDidMount() {
-    this.getProfesores();
+    this.listarProfesores();
   }
 
-  getProfesores = () => {
-    axios.get('http://lb-prod-73038203.us-east-1.elb.amazonaws.com:8002/profesores')
-      .then((response) => {
-        this.setState({ profesores: response.data.profesores });
+  listarProfesores = () => {
+    fetch('http://lb-prod-73038203.us-east-1.elb.amazonaws.com:8002/profesores')
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.profesores && Array.isArray(data.profesores)) {
+          this.setState({ profesores: data.profesores });
+        } else {
+          console.error('La respuesta no contiene un array de profesores válido.');
+        }
       })
       .catch((error) => {
         console.error('Error al obtener la lista de profesores: ', error);
       });
   }
 
+  crearProfesor = () => {
+    fetch('http://lb-prod-73038203.us-east-1.elb.amazonaws.com:8002/profesores', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: this.state.id,
+        nombre: this.state.nombre,
+        carrera: this.state.carrera,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.mensaje === 'Profesor registrado') {
+          alert('Profesor registrado exitosamente');
+          this.listarProfesores();
+          this.setState({
+            id: '',
+            nombre: '',
+            carrera: '',
+          });
+        } else {
+          alert('Error al registrar al profesor');
+        }
+      })
+      .catch((error) => console.error('Error:', error));
+  };
+
+  actualizarProfesor = () => {
+    const { id } = this.state;
+    fetch(`http://lb-prod-73038203.us-east-1.elb.amazonaws.com:8002/profesores/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nombre: this.state.nombre,
+        carrera: this.state.carrera,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.mensaje === 'Profesor modificado') {
+          alert('Profesor actualizado exitosamente');
+          this.listarProfesores();
+          this.setState({
+            id: '',
+            nombre: '',
+            carrera: '',
+          });
+        } else {
+          alert('Error al actualizar al profesor');
+        }
+      })
+      .catch((error) => console.error('Error:', error));
+  };
+
+  eliminarProfesor = () => {
+    const { id } = this.state;
+    fetch(`http://lb-prod-73038203.us-east-1.elb.amazonaws.com:8002/profesores/${id}`, {
+      method: 'DELETE',
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.mensaje === 'Profesor eliminado') {
+          alert('Profesor eliminado exitosamente');
+          this.listarProfesores();
+          this.setState({
+            id: '',
+          });
+        } else {
+          alert('Error al eliminar al profesor');
+        }
+      })
+      .catch((error) => console.error('Error:', error));
+  };
+
   handleInputChange = (e) => {
     const { name, value } = e.target;
-    this.setState((prevState) => ({
-      nuevoProfesor: {
-        ...prevState.nuevoProfesor,
-        [name]: value,
-      },
-    }));
-  }
-
-  handleSubmit = (e) => {
-    e.preventDefault();
-    axios.post('http://lb-prod-73038203.us-east-1.elb.amazonaws.com:8002/profesores', this.state.nuevoProfesor)
-      .then((response) => {
-        console.log(response.data.mensaje);
-        this.getProfesores();
-      })
-      .catch((error) => {
-        console.error('Error al registrar al profesor: ', error);
-      });
-  }
+    this.setState({ [name]: value });
+  };
 
   render() {
-    const { profesores, nuevoProfesor } = this.state;
+    const { profesores, id, nombre, carrera } = this.state;
 
     return (
       <div>
-        <h1>Lista de Profesores</h1>
-        <ul>
-          {profesores.map((profesor) => (
-            <li key={profesor.id}>
-              {profesor.nombre} - {profesor.carrera}
-            </li>
-          ))}
-        </ul>
+        <Button className="Inicio-Boton" style={{ float: 'left', fontSize: '20px', padding: '20px 10px', marginLeft: '20px', marginTop: '20px' }} onClick={() => { window.location.href = '/'; }}>Inicio</Button>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
 
-        <h2>Registrar Profesor</h2>
-        <form onSubmit={this.handleSubmit}>
-          <label>ID:
-            <input type="text" name="id" value={nuevoProfesor.id} onChange={this.handleInputChange} />
-          </label>
-          <br />
-          <label>Nombre:
-            <input type="text" name="nombre" value={nuevoProfesor.nombre} onChange={this.handleInputChange} />
-          </label>
-          <br />
-          <label>Carrera:
-            <input type="text" name="carrera" value={nuevoProfesor.carrera} onChange={this.handleInputChange} />
-          </label>
-          <br />
-          <button type="submit">Registrar</button>
-        </form>
+        <Typography variant="h4" >Lista de Profesores</Typography>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Carrera</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {profesores.map((profesor) => (
+              <TableRow key={profesor.id}>
+                <TableCell>{profesor.id}</TableCell>
+                <TableCell>{profesor.nombre}</TableCell>
+                <TableCell>{profesor.carrera}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <Typography variant="h4">Crear/Actualizar/Eliminar Profesor</Typography>
+        <TextField
+          label="ID"
+          name="id"
+          value={id}
+          onChange={this.handleInputChange}
+        />
+
+        <Typography variant="h5">Crear/actualizar Profesor</Typography>
+        <TextField
+          label="Nombre"
+          name="nombre"
+          value={nombre}
+          onChange={this.handleInputChange}
+        />
+        <TextField
+          label="Carrera"
+          name="carrera"
+          value={carrera}
+          onChange={this.handleInputChange}
+        />
+        <br></br>
+        <Button variant="contained" onClick={this.crearProfesor}>
+          Crear Profesor
+        </Button>
+        <Button variant="contained" onClick={this.actualizarProfesor}>
+          Actualizar Profesor
+        </Button>
+
+        <Typography variant="h5">Eliminar Profesor</Typography>
+        <Button variant="contained" onClick={this.eliminarProfesor}>
+          Eliminar Profesor
+        </Button>
       </div>
     );
   }

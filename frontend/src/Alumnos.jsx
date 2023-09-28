@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { TextField, Button, Typography, Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
 
-class App extends Component {
+class Alumnos extends Component {
   constructor() {
     super();
     this.state = {
@@ -14,20 +15,28 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // Obtener la lista de alumnos al cargar la página
     this.listarAlumnos();
   }
 
   listarAlumnos = () => {
-    // Realizar una solicitud GET a la API Flask para obtener la lista de alumnos
     fetch('http://lb-prod-73038203.us-east-1.elb.amazonaws.com:8001/alumnos')
       .then((response) => response.json())
-      .then((data) => this.setState({ alumnos: data.alumnos }))
-      .catch((error) => console.error('Error:', error));
-  };
+      .then((data) => {
+        // Comprueba si "alumnos" existe en la respuesta antes de actualizar el estado
+        if (data.alumnos && Array.isArray(data.alumnos)) {
+          this.setState({ alumnos: data.alumnos });
+        } else {
+          console.error('La respuesta no contiene un array de alumnos válido.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error al obtener la lista de alumnos: ', error);
+      });
+  }
+  
+  
 
   crearAlumno = () => {
-    // Realizar una solicitud POST a la API Flask para crear un nuevo alumno
     fetch('http://lb-prod-73038203.us-east-1.elb.amazonaws.com:8001/alumnos', {
       method: 'POST',
       headers: {
@@ -121,75 +130,91 @@ class App extends Component {
   };
 
   render() {
+    const { alumnos, codigo, nombre, creditos, ciclo, carrera } = this.state;
+
     return (
       <div>
-        <h1>Lista de Alumnos</h1>
-        <ul>
-          {this.state.alumnos.map((alumno) => (
-            <li key={alumno.codigo}>
-              Código: {alumno.codigo}, Nombre: {alumno.nombre}, Créditos: {alumno.creditos}, Ciclo: {alumno.ciclo}, Carrera: {alumno.carrera}
-            </li>
-          ))}
-        </ul>
+        <Button className="Inicio-Boton" style={{ float: 'left', fontSize: '20px', padding: '20px 10px', marginLeft: '20px', marginTop: '20px' }} onClick={() => { window.location.href = '/'; }}>Inicio</Button>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
 
-        <h1>Crear/Actualizar/Eliminar Alumno</h1>
-        <div>
-          <label>Código:</label>
-          <input
-            type="text"
-            name="codigo"
-            value={this.state.codigo}
-            onChange={this.handleInputChange}
-          />
-        </div>
-        <div>
-          <label>Nombre:</label>
-          <input
-            type="text"
-            name="nombre"
-            value={this.state.nombre}
-            onChange={this.handleInputChange}
-          />
-        </div>
-        <div>
-          <label>Créditos:</label>
-          <input
-            type="text"
-            name="creditos"
-            value={this.state.creditos}
-            onChange={this.handleInputChange}
-          />
-        </div>
-        <div>
-          <label>Ciclo:</label>
-          <input
-            type="text"
-            name="ciclo"
-            value={this.state.ciclo}
-            onChange={this.handleInputChange}
-          />
-        </div>
-        <div>
-          <label>Carrera:</label>
-          <input
-            type="text"
-            name="carrera"
-            value={this.state.carrera}
-            onChange={this.handleInputChange}
-          />
-        </div>
-        <button type="button" onClick={this.crearAlumno}>
+        <Typography variant="h4" >Lista de Alumnos</Typography>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Código</TableCell>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Créditos</TableCell>
+              <TableCell>Ciclo</TableCell>
+              <TableCell>Carrera</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {alumnos.map((alumno) => (
+              <TableRow key={alumno.codigo}>
+                <TableCell>{alumno.codigo}</TableCell>
+                <TableCell>{alumno.nombre}</TableCell>
+                <TableCell>{alumno.creditos}</TableCell>
+                <TableCell>{alumno.ciclo}</TableCell>
+                <TableCell>{alumno.carrera}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <Typography variant="h4">Crear/Actualizar/Eliminar Alumno</Typography>
+        <TextField
+          label="Código"
+          name="codigo"
+          value={codigo}
+          onChange={this.handleInputChange}
+        />
+
+        {/* Botón y formulario para Crear alumno */}
+        <Typography variant="h5">Crear/actualizar Alumno</Typography>
+        <TextField
+          label="Nombre"
+          name="nombre"
+          value={nombre}
+          onChange={this.handleInputChange}
+        />
+        <TextField
+          label="Créditos"
+          name="creditos"
+          value={creditos}
+          onChange={this.handleInputChange}
+        />
+        <TextField
+          label="Ciclo"
+          name="ciclo"
+          value={ciclo}
+          onChange={this.handleInputChange}
+        />
+        <TextField
+          label="Carrera"
+          name="carrera"
+          value={carrera}
+          onChange={this.handleInputChange}
+        />
+        <br></br>
+        <Button variant="contained" onClick={this.crearAlumno}>
           Crear Alumno
-        </button>
-        <button type="button" onClick={this.actualizarAlumno}>
+        </Button>
+        <Button variant="contained" onClick={this.actualizarAlumno}>
           Actualizar Alumno
-        </button>
-        <button type="button" onClick={this.eliminarAlumno}>
+        </Button>
+
+      {/* Botón y formulario para eliminar alumno */}
+        <Typography variant="h5">Eliminar Alumno</Typography>
+        <Button variant="contained" onClick={this.eliminarAlumno}>
           Eliminar Alumno
-        </button>
+        </Button>
       </div>
     );
   }
 }
 
-export default App;
+export default Alumnos;
+

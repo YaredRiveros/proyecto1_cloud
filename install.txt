@@ -1,12 +1,3 @@
-To create a react project
-npx create-react app
-
-
-Install
-npm install react-router-dom
-npm install react-modal
-npm install @mui/material
-pip install flask-cors
 
 
 

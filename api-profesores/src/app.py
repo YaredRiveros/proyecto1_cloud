@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 # from flask_mysqldb import MySQL #el editor tira error aca pero no hacer caso
 from flaskext.mysql import MySQL
 from flask_cors import CORS  # Import CORS

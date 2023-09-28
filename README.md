@@ -3,6 +3,7 @@
 ## Dependencias
 - pip install flask
 - pip install flask_mysqldb  <- no lo pude instalar en mi linux (wsl), puede que de problemas en las MV. Podríamos cambiar a otro conector de mysql
+- pip install flask_cors
 
 ## Llamar a las API's desde la nube
 
